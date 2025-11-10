@@ -165,4 +165,14 @@ function renderEntries(){
     });
   });
 
-  //
+  // Calendrier
+  const calendarEl = document.getElementById('calendar');
+  calendarEl.innerHTML = '';
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    events
+  });
+  calendar.render();
+}
+
+filterTagInput.addEventListener('input', renderEntries);
