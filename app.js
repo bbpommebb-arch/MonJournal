@@ -14,9 +14,13 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 // 🔹 Références HTML
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
 const loginBtn = document.getElementById('loginBtn');
+const signupBtn = document.getElementById('signupBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const userNameSpan = document.getElementById('userName');
+
 const titleInput = document.getElementById('title');
 const contentInput = document.getElementById('content');
 const tagsInput = document.getElementById('tags');
@@ -27,21 +31,52 @@ const filterTagInput = document.getElementById('filterTag');
 let currentUser = null;
 let entriesData = [];
 
-// 🔹 Authentification Google
-const provider = new firebase.auth.GoogleAuthProvider();
+// 🔹 Inscription
+signupBtn.addEventListener('click', () => {
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  if(!email || !password) { alert("Email et mot de passe requis"); return; }
 
-loginBtn.addEventListener('click', () => auth.signInWithPopup(provider));
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      currentUser = userCredential.user;
+      alert("Inscription réussie !");
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+});
+
+// 🔹 Connexion
+loginBtn.addEventListener('click', () => {
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  if(!email || !password) { alert("Email et mot de passe requis"); return; }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      currentUser = userCredential.user;
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+});
+
+// 🔹 Déconnexion
 logoutBtn.addEventListener('click', () => auth.signOut());
 
-auth.onAuthStateChanged(user => {
+// 🔹 État de connexion
+auth.onAuthStateChanged((user) => {
   currentUser = user;
   if(user){
     loginBtn.style.display = 'none';
+    signupBtn.style.display = 'none';
     logoutBtn.style.display = 'inline';
-    userNameSpan.textContent = `Bonjour, ${user.displayName}`;
+    userNameSpan.textContent = `Bonjour, ${user.email}`;
     listenEntries();
   } else {
     loginBtn.style.display = 'inline';
+    signupBtn.style.display = 'inline';
     logoutBtn.style.display = 'none';
     userNameSpan.textContent = '';
     entriesDiv.innerHTML = '';
@@ -130,14 +165,4 @@ function renderEntries(){
     });
   });
 
-  // Calendrier
-  const calendarEl = document.getElementById('calendar');
-  calendarEl.innerHTML = '';
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    events
-  });
-  calendar.render();
-}
-
-filterTagInput.addEventListener('input', renderEntries);
+  //

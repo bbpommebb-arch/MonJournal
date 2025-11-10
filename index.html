@@ -18,22 +18,27 @@
 <body>
 <h1>Mon Journal</h1>
 
-<!-- Auth -->
-<button id="loginBtn">Se connecter avec Google</button>
-<button id="logoutBtn" style="display:none;">Se déconnecter</button>
-<span id="userName"></span>
+<!-- Auth email/password -->
+<div id="authContainer">
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Mot de passe">
+  <button id="loginBtn">Se connecter</button>
+  <button id="signupBtn">S’inscrire</button>
+  <button id="logoutBtn" style="display:none;">Se déconnecter</button>
+  <span id="userName"></span>
+</div>
 
 <!-- Entrée -->
 <div class="input-container">
-<input type="text" id="title" placeholder="Titre">
-<textarea id="content" placeholder="Écrire une entrée..."></textarea>
-<input type="text" id="tags" placeholder="Tags (séparés par virgule)">
-<button id="saveBtn">Enregistrer</button>
+  <input type="text" id="title" placeholder="Titre">
+  <textarea id="content" placeholder="Écrire une entrée..."></textarea>
+  <input type="text" id="tags" placeholder="Tags (séparés par virgule)">
+  <button id="saveBtn">Enregistrer</button>
 </div>
 
 <!-- Filtre tags -->
 <div>
-<input type="text" id="filterTag" placeholder="Filtrer par tag">
+  <input type="text" id="filterTag" placeholder="Filtrer par tag">
 </div>
 
 <!-- Liste des entrées -->
