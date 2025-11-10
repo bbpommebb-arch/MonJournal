@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mon Journal</title>
+
+<!-- FullCalendar -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css' rel='stylesheet' />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Mon Journal</h1>
+
+<!-- Auth -->
+<button id="loginBtn">Se connecter avec Google</button>
+<button id="logoutBtn" style="display:none;">Se déconnecter</button>
+<span id="userName"></span>
+
+<!-- Entrée -->
+<div class="input-container">
+<input type="text" id="title" placeholder="Titre">
+<textarea id="content" placeholder="Écrire une entrée..."></textarea>
+<input type="text" id="tags" placeholder="Tags (séparés par virgule)">
+<button id="saveBtn">Enregistrer</button>
+</div>
+
+<!-- Filtre tags -->
+<div>
+<input type="text" id="filterTag" placeholder="Filtrer par tag">
+</div>
+
+<!-- Liste des entrées -->
+<div id="entries"></div>
+
+<!-- Calendrier -->
+<div id='calendar'></div>
+
+<script src="app.js"></script>
+</body>
+</html>
