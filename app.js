@@ -1,11 +1,12 @@
 // 🔹 Config Firebase
 const firebaseConfig = {
-  apiKey: "TON_API_KEY",
-  authDomain: "TON_PROJECT_ID.firebaseapp.com",
-  projectId: "TON_PROJECT_ID",
-  storageBucket: "TON_PROJECT_ID.appspot.com",
-  messagingSenderId: "TON_SENDER_ID",
-  appId: "TON_APP_ID"
+  apiKey: "AIzaSyB-DfZugoODC32gUqZH8lU6IJ2Kq2MSGng",
+  authDomain: "mon-journal-d5e59.firebaseapp.com",
+  projectId: "mon-journal-d5e59",
+  storageBucket: "mon-journal-d5e59.firebasestorage.app",
+  messagingSenderId: "695080304385",
+  appId: "1:695080304385:web:8b0beb7d3f314a2ffe2500",
+  measurementId: "G-5RXVSVPHM9"
 };
 
 firebase.initializeApp(firebaseConfig);
