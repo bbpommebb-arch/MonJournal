@@ -15,78 +15,49 @@ document.addEventListener("DOMContentLoaded", function() {
   const db = firebase.firestore();
   const auth = firebase.auth();
 
-  // 🔹 Références HTML
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const loginBtn = document.getElementById('loginBtn');
-  const signupBtn = document.getElementById('signupBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const userNameSpan = document.getElementById('userName');
-
-  const titleInput = document.getElementById('title');
-  const contentInput = document.getElementById('content');
-  const tagsInput = document.getElementById('tags');
-  const saveBtn = document.getElementById('saveBtn');
-  const entriesDiv = document.getElementById('entries');
-  const filterTagInput = document.getElementById('filterTag');
-  const calendarEl = document.getElementById('calendar');
-
   let currentUser = null;
-  let entriesData = [];
+  //let entriesData = [];
+  
+    // 🔥 Connexion automatique anonyme
+  auth.signInAnonymously()
+    .then(() => {
+      console.log("Connecté anonymement !");
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la connexion anonyme :", error);
+    });
 
-  // 🔹 Inscription
-  signupBtn.addEventListener('click', () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    if(!email || !password) { alert("Email et mot de passe requis"); return; }
-
-    auth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        currentUser = userCredential.user;
-        alert("Inscription réussie !");
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
-  });
-
-  // 🔹 Connexion
-  loginBtn.addEventListener('click', () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    if(!email || !password) { alert("Email et mot de passe requis"); return; }
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        currentUser = userCredential.user;
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
-  });
-
-  // 🔹 Déconnexion
-  logoutBtn.addEventListener('click', () => auth.signOut());
-
-  // 🔹 État de connexion
+  // 🔥 À chaque changement d’état (connexion réussie)
   auth.onAuthStateChanged((user) => {
-    currentUser = user;
-    if(user){
-      loginBtn.style.display = 'none';
-      signupBtn.style.display = 'none';
-      logoutBtn.style.display = 'inline';
-      userNameSpan.textContent = `Bonjour, ${user.email}`;
+    if (user) {
+      currentUser = user;
+      console.log("UID anonyme =", user.uid);
+
+      // 👉 IMPORTANT : appeler ici ta fonction de lecture Firestore
       listenEntries();
-    } else {
-      loginBtn.style.display = 'inline';
-      signupBtn.style.display = 'inline';
-      logoutBtn.style.display = 'none';
-      userNameSpan.textContent = '';
-      entriesDiv.innerHTML = '';
-      calendarEl.innerHTML = '';
     }
   });
 
+  // 🔥 Connexion automatique anonyme
+  auth.signInAnonymously()
+    .then(() => {
+      console.log("Connecté anonymement !");
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la connexion anonyme :", error);
+    });
+
+  // 🔥 À chaque changement d’état (connexion réussie)
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      currentUser = user;
+      console.log("UID anonyme =", user.uid);
+
+      // 👉 IMPORTANT : appeler ici ta fonction de lecture Firestore
+      listenEntries();
+    }
+  });
+  
   // 🔹 Ajouter une entrée
   saveBtn.addEventListener('click', () => {
     if(!currentUser){ alert("Connectez-vous pour enregistrer une entrée !"); return; }
