@@ -66,17 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function initCalendar(){
     const calendarEl = document.getElementById("calendar");
-    calendar = new FullCalendar.Calendar(calendarEl,{
-      initialView: window.innerWidth<700?"dayGridMonth":"dayGridMonth",
-      height:450,
-      dayMaxEvents:true,
-      events:[],
-      dateClick: info=>{
-        currentFilter.date = info.dateStr;
-        searchDate.value = info.dateStr;
-        renderEntries();
-      }
-    });
+	calendar = new FullCalendar.Calendar(calendarEl, {
+	  initialView: 'dayGridMonth',
+	  height: 450
+	});
     calendar.render();
   }
   initCalendar();
