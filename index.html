@@ -3,88 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mon Journal Privé</title>
+<title>Journal Day One</title>
 
 <!-- FullCalendar CSS -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 
+<!-- === CSS Moderne inspiré du template Day One === -->
 <style>
-  body{font-family:Arial,sans-serif; margin:0; padding:16px; background:#f6f7fb; color:#0f1724;}
-  body.dark{background:#0b1220; color:#e6eef8;}
-  .panel{background:white; padding:12px; border-radius:12px; margin-bottom:12px;}
-  .layout{display:grid; grid-template-columns:360px 1fr; gap:16px;}
-  @media (max-width:900px){.layout{grid-template-columns:1fr;}}
-  input, textarea, button{font:inherit; border-radius:8px; padding:6px 10px; margin-bottom:6px;}
-  #calendar{background:white; border-radius:12px; padding:8px;}
-  .entry{border:1px solid #ddd; border-radius:8px; padding:10px; margin-bottom:10px;}
-  .entry .meta{display:flex; justify-content:space-between; margin-bottom:6px;}
-  .entry-tags{display:flex; gap:6px; flex-wrap:wrap;}
-  .tag{background:rgba(37,99,235,0.08); color:#2563eb; padding:4px 8px; border-radius:999px; font-size:0.85rem; cursor:pointer;}
-  body.dark .tag{background: rgba(96,165,250,0.08);}
-  #loginPopup{display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center;}
-  #loginCard{background:white; padding:18px; border-radius:12px; width:360px;}
-</style>
+body { 
+  font-family:Segoe UI, Arial, sans-serif; 
+  font-size:0.9em; 
+  background:#f6f7fb; 
+  margin:0; padding:2em;
+  display:flex; flex-direction:row; gap:2em; align-items:flex-start;
+  transition: background 0.3s, color 0.3s;
+}
+body.dark { background:#0b1220; color:#e6eef8; }
 
+main { flex:1; }
+aside { width:250px; background:#fff; border-radius:10px; box-shadow:0 3px 12px rgba(0,0,0,0.08); padding:1em; }
+body.dark aside { background:#1c2330; }
+
+.entry { background:#fff; border-radius:10px; padding:1em 1.5em; margin-bottom:1.5em; box-shadow:0 3px 12px rgba(0,0,0,0.08); }
+body.dark .entry { background:#212835; }
+
+.meta { color:#666; font-size:0.85em; margin-bottom:6px; }
+body.dark .meta { color:#ccc; }
+
+.tags { color:#0a58ca; font-size:0.8em; margin-bottom:6px; }
+body.dark .tags { color:#60a5fa; }
+
+h1, h2, h3 { margin:0.5em 0; }
+
+blockquote { margin:0.5em 0; padding-left:12px; border-left:3px solid #dbeafe; color:#334155; }
+body.dark blockquote { border-left: #2563eb; color:#e6eef8; }
+
+img { max-width:100%; border-radius:8px; margin:6px 0; }
+
+button { padding:0.3em 0.8em; border:1px solid #ccc; background:#eee; border-radius:6px; cursor:pointer; }
+button:hover { background:#ddd; }
+
+.calendar { display:inline-block; background:#fff; padding:1em; border-radius:12px; box-shadow:0 3px 12px rgba(0,0,0,0.08); margin-bottom:1.5em; }
+body.dark .calendar { background:#1c2330; }
+
+#darkToggle { margin-bottom:16px; }
+</style>
 </head>
 <body>
 
-<button id="adminBtn">Admin</button>
-<button id="darkToggle">🌙</button>
+<!-- Toggle mode sombre -->
+<button id="darkToggle">🌙 Mode sombre</button>
 
-<div id="lockedMessage" class="panel">
-  <p>Ce journal est privé. Cliquez sur Admin pour vous connecter.</p>
-</div>
+<aside>
+  <h3>Calendrier</h3>
+  <div id="calendar" class="calendar"></div>
 
-<div id="journalContent" style="display:none;">
-
-  <div class="layout">
-
-    <div>
-      <div class="panel">
-        <h3>Nouvelle entrée</h3>
-        <input id="newTitle" placeholder="Titre">
-        <textarea id="newContent" placeholder="Texte"></textarea>
-        <input id="newTags" placeholder="Tags (séparés par virgule)">
-        <button id="addEntryBtn">Ajouter</button>
-        <button id="clearFilters">Réinitialiser filtres</button>
-      </div>
-
-      <div class="panel">
-        <h3>Calendrier</h3>
-        <div id="calendar"></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="panel">
-        <input id="searchDate" type="date">
-        <input id="searchText" placeholder="Rechercher...">
-        <button id="searchBtn">Rechercher</button>
-
-        <div id="allTags" class="tags-row" style="margin-top:8px;"></div>
-
-        <div id="entries"></div>
-      </div>
-    </div>
-
+  <div class="taglist">
+    <h3>Tags</h3>
+    <div id="tagContainer">(chargement...)</div>
   </div>
-</div>
 
-<!-- Login popup -->
-<div id="loginPopup" style="display:flex; justify-content:center; align-items:center;">
-  <div id="loginCard">
-    <h3>Connexion</h3>
-    <input id="email" type="email" placeholder="Email"><br>
-    <input id="password" type="password" placeholder="Mot de passe"><br>
-    <button id="loginBtn">Se connecter</button>
-    <button id="closeLogin">Fermer</button>
+  <div style="text-align:center;margin-top:1em">
+    <button id="clearFilter">Tout afficher</button>
   </div>
-</div>
+</aside>
 
-<!-- FullCalendar -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<main>
+  <h1>Mon Journal Day One</h1>
+
+  <div class="panel">
+    <h3>Nouvelle entrée</h3>
+    <input id="newTitle" placeholder="Titre"><br>
+    <textarea id="newContent" placeholder="Texte"></textarea><br>
+    <input id="newTags" placeholder="Tags (séparés par |)"><br>
+    <button id="addEntryBtn">Ajouter</button>
+  </div>
+
+  <div id="entries"></div>
+</main>
+
+<!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -92,7 +91,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyB-DfZugoODC32gUqZH8lU6IJ2Kq2MSGng",
   authDomain: "mon-journal-d5e59.firebaseapp.com",
   projectId: "mon-journal-d5e59",
@@ -100,10 +99,112 @@
   messagingSenderId: "695080304385",
   appId: "1:695080304385:web:8b0beb7d3f314a2ffe2500",
   measurementId: "G-5RXVSVPHM9"
-  };
-  firebase.initializeApp(firebaseConfig);
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// === Mode sombre toggle ===
+const darkToggle = document.getElementById('darkToggle');
+darkToggle.onclick = () => document.body.classList.toggle('dark');
+
+// === Variables ===
+let entries = [];
+const entriesEl = document.getElementById('entries');
+const tagContainer = document.getElementById('tagContainer');
+const calendarEl = document.getElementById('calendar');
+let calendar;
+
+// === Initialiser FullCalendar ===
+function initCalendar() {
+  calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 400,
+    events: []
+  });
+  calendar.render();
+}
+initCalendar();
+
+// === Ajouter une entrée ===
+document.getElementById('addEntryBtn').onclick = async () => {
+  const title = document.getElementById('newTitle').value.trim();
+  const content = document.getElementById('newContent').value.trim();
+  const tags = document.getElementById('newTags').value.trim();
+
+  if (!title || !content) return alert("Titre et texte requis");
+
+  const date = new Date().toISOString().slice(0,10);
+  const entry = { title, content, tags, date, created: new Date().toISOString() };
+  const docRef = await db.collection('entries').add(entry);
+  entry.id = docRef.id;
+
+  entries.push(entry);
+  updateUI();
+  document.getElementById('newTitle').value = '';
+  document.getElementById('newContent').value = '';
+  document.getElementById('newTags').value = '';
+};
+
+// === Charger les entrées depuis Firebase ===
+async function loadEntries() {
+  const snapshot = await db.collection('entries').orderBy('created','desc').get();
+  entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  updateUI();
+}
+loadEntries();
+
+// === Mettre à jour l’UI ===
+function updateUI() {
+  // Calendrier
+  calendar.removeAllEvents();
+  entries.forEach(e => calendar.addEvent({ title: e.title, start: e.date }));
+
+  // Entrées
+  entriesEl.innerHTML = '';
+  entries.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'entry';
+    div.dataset.date = e.date;
+    div.dataset.tags = e.tags || '';
+    div.innerHTML = `
+      <div class="tags">Tags : ${e.tags}</div>
+      <div class="meta">Le ${new Date(e.created).toLocaleString()}</div>
+      <div><h2>${e.title}</h2>${e.content}</div>
+    `;
+    entriesEl.appendChild(div);
+  });
+
+  // Tags
+  renderTags();
+}
+
+// === Tags ===
+function renderTags() {
+  const tagCounts = {};
+  entries.forEach(e => {
+    const tags = (e.tags||'').split('|').filter(Boolean);
+    tags.forEach(t => tagCounts[t] = (tagCounts[t]||0)+1);
+  });
+  tagContainer.innerHTML = '';
+  Object.entries(tagCounts).sort().forEach(([tag,count])=>{
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.textContent = `${tag} (${count})`;
+    span.onclick = () => filterByTag(tag);
+    tagContainer.appendChild(span);
+  });
+}
+
+function filterByTag(tag) {
+  entriesEl.querySelectorAll('.entry').forEach(e=>{
+    e.style.display = (e.dataset.tags.split('|').includes(tag)) ? 'block' : 'none';
+  });
+}
+
+document.getElementById('clearFilter').onclick = () => {
+  entriesEl.querySelectorAll('.entry').forEach(e=>e.style.display='block');
+}
 </script>
 
-<script src="app.js"></script>
 </body>
 </html>
