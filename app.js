@@ -65,12 +65,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function initCalendar(){
-    const calendarEl = document.getElementById("calendar");
-	calendar = new FullCalendar.Calendar(calendarEl, {
-	  initialView: 'dayGridMonth',
-	  height: 450
+	const calendarEl = document.getElementById('calendar');
+	const calendar = new FullCalendar.Calendar(calendarEl, {
+	  initialView: 'dayGridMonth'
 	});
-    calendar.render();
+	calendar.render();
   }
   initCalendar();
 
