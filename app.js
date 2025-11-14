@@ -1,99 +1,162 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Journal Privé</title>
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-<!-- FullCalendar 5 (stable pour script global) -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+document.addEventListener("DOMContentLoaded", () => {
+  const adminBtn = document.getElementById("adminBtn");
+  const loginPopup = document.getElementById("loginPopup");
+  const closeLogin = document.getElementById("closeLogin");
+  const loginBtn = document.getElementById("loginBtn");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  const journalContent = document.getElementById("journalContent");
+  const lockedMessage = document.getElementById("lockedMessage");
 
-<style>
-body{font-family:Segoe UI, Arial, sans-serif; margin:0; padding:2em; background:#f6f7fb; color:#0f1724;}
-body.dark{background:#0b1220; color:#e6eef8;}
-button{cursor:pointer; margin:4px; padding:6px 12px; border-radius:8px;}
-.panel{background:white; padding:12px; border-radius:12px; margin-bottom:12px;}
-.layout{display:flex; gap:16px; flex-wrap:wrap;}
-.layout > div{flex:1 1 360px;}
-#calendar{background:white; border-radius:12px; padding:8px;}
-.entry{border:1px solid #ddd; border-radius:8px; padding:10px; margin-bottom:10px;}
-.entry .meta{display:flex; justify-content:space-between; margin-bottom:6px;}
-.entry-tags{display:flex; gap:6px; flex-wrap:wrap;}
-.tag{background:rgba(37,99,235,0.08); color:#2563eb; padding:4px 8px; border-radius:999px; font-size:0.85rem; cursor:pointer;}
-body.dark .tag{background: rgba(96,165,250,0.08);}
-</style>
-</head>
-<body>
+  const newTitle = document.getElementById("newTitle");
+  const newContent = document.getElementById("newContent");
+  const newTags = document.getElementById("newTags");
+  const addEntryBtn = document.getElementById("addEntryBtn");
+  const clearFilters = document.getElementById("clearFilters");
 
-<button id="adminBtn">Admin</button>
-<button id="darkToggle">🌙</button>
+  const searchDate = document.getElementById("searchDate");
+  const searchText = document.getElementById("searchText");
+  const searchBtn = document.getElementById("searchBtn");
 
-<div id="lockedMessage" class="panel">
-  <p>Ce journal est privé. Cliquez sur Admin pour vous connecter.</p>
-</div>
+  const entriesDiv = document.getElementById("entries");
+  const allTagsDiv = document.getElementById("allTags");
 
-<div id="journalContent" style="display:none;">
+  const darkToggle = document.getElementById("darkToggle");
 
-  <div class="layout">
-    <div>
-      <div class="panel">
-        <h3>Nouvelle entrée</h3>
-        <input id="newTitle" placeholder="Titre"><br>
-        <textarea id="newContent" placeholder="Texte"></textarea><br>
-        <input id="newTags" placeholder="Tags (séparés par virgule)"><br>
-        <button id="addEntryBtn">Ajouter</button>
-        <button id="clearFilters">Réinitialiser filtres</button>
-      </div>
+  let calendar;
+  let allEntries = [];
+  let currentFilter = { date:null, text:"", tag:null };
 
-      <div class="panel">
-        <h3>Calendrier</h3>
-        <div id="calendar"></div>
-      </div>
-    </div>
+  // Dark mode
+  const savedDark = localStorage.getItem("journal-dark") === "1";
+  if(savedDark) document.body.classList.add("dark");
+  darkToggle.textContent = savedDark ? "☀️" : "🌙";
+  darkToggle.addEventListener("click", () => {
+    const dark = document.body.classList.toggle("dark");
+    localStorage.setItem("journal-dark", dark ? "1":"0");
+    darkToggle.textContent = dark ? "☀️":"🌙";
+  });
 
-    <div>
-      <div class="panel">
-        <input id="searchDate" type="date">
-        <input id="searchText" placeholder="Rechercher...">
-        <button id="searchBtn">Rechercher</button>
-        <div id="allTags" class="tags-row" style="margin-top:8px;"></div>
-        <div id="entries"></div>
-      </div>
-    </div>
-  </div>
-</div>
+  // Admin login
+  adminBtn.addEventListener("click", ()=>{loginPopup.style.display="flex"});
+  closeLogin.addEventListener("click", ()=>{loginPopup.style.display="none"});
+  loginBtn.addEventListener("click", ()=>{
+    const email = emailInput.value.trim();
+    const pwd = passwordInput.value.trim();
+    if(!email||!pwd){ alert("Email et mot de passe requis"); return;}
+    auth.signInWithEmailAndPassword(email,pwd).then(()=>{loginPopup.style.display="none"}).catch(e=>alert(e.message));
+  });
 
-<!-- Login popup -->
-<div id="loginPopup" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center;">
-  <div style="background:white; padding:18px; border-radius:12px; width:360px;">
-    <h3>Connexion</h3>
-    <input id="email" type="email" placeholder="Email"><br>
-    <input id="password" type="password" placeholder="Mot de passe"><br>
-    <button id="loginBtn">Se connecter</button>
-    <button id="closeLogin">Fermer</button>
-  </div>
-</div>
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      lockedMessage.style.display="none";
+      journalContent.style.display="block";
+      activateEditing();
+      startRealtime();
+    }else{
+      journalContent.style.display="none";
+      lockedMessage.style.display="block";
+      disableEditing();
+    }
+  });
 
-<!-- App script -->
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyB-DfZugoODC32gUqZH8lU6IJ2Kq2MSGng",
-  authDomain: "mon-journal-d5e59.firebaseapp.com",
-  projectId: "mon-journal-d5e59",
-  storageBucket: "mon-journal-d5e59.firebasestorage.app",
-  messagingSenderId: "695080304385",
-  appId: "1:695080304385:web:8b0beb7d3f314a2ffe2500",
-  measurementId: "G-5RXVSVPHM9"
-};
-firebase.initializeApp(firebaseConfig);
-</script>
-<script src="app.js"></script>
+  function initCalendar(){
+	const calendarEl = document.getElementById('calendar');
+	const calendar = new FullCalendar.Calendar(calendarEl, {
+	  initialView: 'dayGridMonth'
+	});
+	calendar.render();
+  }
+  initCalendar();
 
-</body>
-</html>
+  function startRealtime(){
+    db.collection("entries").orderBy("date","desc").onSnapshot(snapshot=>{
+      allEntries = snapshot.docs.map(d=>({id:d.id,data:d.data()}));
+      allEntries.forEach(e=>{
+        if(e.data.date && typeof e.data.date!=="string" && e.data.date.toDate) e.data.date=e.data.date.toDate().toISOString();
+      });
+      updateUIFromEntries();
+    });
+  }
+
+  function updateUIFromEntries(){
+    calendar.removeAllEvents();
+    const events = allEntries.map(e=>({title:e.data.title||"•", start:e.data.date.slice(0,10)}));
+    events.forEach(ev=>calendar.addEvent(ev));
+
+    const tagSet = new Set();
+    allEntries.forEach(e=>{ (e.data.tags||[]).forEach(t=>tagSet.add(t)); });
+    renderAllTags(Array.from(tagSet).sort());
+
+    renderEntries();
+  }
+
+  function renderAllTags(tags){
+    allTagsDiv.innerHTML="";
+    tags.forEach(t=>{
+      const btn=document.createElement("button");
+      btn.className="tag";
+      btn.textContent=t;
+      btn.addEventListener("click", ()=>{
+        currentFilter.tag=t;
+        renderEntries();
+      });
+      allTagsDiv.appendChild(btn);
+    });
+  }
+
+  function renderEntries(){
+    entriesDiv.innerHTML="";
+    const fDate=currentFilter.date;
+    const fText=(currentFilter.text||"").toLowerCase();
+    const fTag=currentFilter.tag;
+
+    const filtered = allEntries.filter(e=>{
+      const dISO = e.data.date.slice(0,10);
+      if(fDate && dISO!==fDate) return false;
+      if(fTag && !(e.data.tags||[]).some(t=>t.toLowerCase()===fTag.toLowerCase())) return false;
+      if(fText && !(e.data.title+" "+e.data.content+" "+(e.data.tags||[]).join(" ")).toLowerCase().includes(fText)) return false;
+      return true;
+    });
+
+    if(filtered.length===0){ entriesDiv.innerHTML="<div>Aucune entrée</div>"; return;}
+
+    filtered.forEach(e=>{
+      const div=document.createElement("div"); div.className="entry";
+      const dateStr = new Date(e.data.date).toLocaleString();
+      const tagsHtml=(e.data.tags||[]).map(t=>`<span class="tag">${t}</span>`).join(" ");
+      div.innerHTML=`
+        <div class="meta"><div class="title">${e.data.title}</div><div class="date">${dateStr}</div></div>
+        <p>${e.data.content}</p>
+        <div class="entry-tags">${tagsHtml}</div>
+      `;
+      entriesDiv.appendChild(div);
+    });
+  }
+
+  addEntryBtn.addEventListener("click", ()=>{
+    if(!auth.currentUser){alert("Tu dois être connecté."); return;}
+    const title = newTitle.value.trim();
+    const content = newContent.value.trim();
+    const tags = (newTags.value||"").split(",").map(t=>t.trim()).filter(Boolean);
+    if(!title&&!content){ alert("Titre ou contenu requis"); return; }
+    db.collection("entries").add({
+      title:title||"(sans titre)",
+      content:content||"",
+      tags,
+      date:new Date().toISOString()
+    }).then(()=>{
+      newTitle.value=""; newContent.value=""; newTags.value="";
+      currentFilter={date:null,text:"",tag:null};
+      searchDate.value=""; searchText.value="";
+    });
+  });
+
+  function activateEditing(){ addEntryBtn.disabled=false; }
+  function disableEditing(){ addEntryBtn.disabled=true; }
+
+});
