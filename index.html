@@ -25,7 +25,8 @@
           <h3>Nouvelle entrée</h3>
           <input id="newTitle" placeholder="Titre">
           <textarea id="newContent" placeholder="Texte"></textarea>
-          <input id="newTags" placeholder="Tags (séparés par des virgules)">
+		  <input id="newTags" placeholder="Tags (séparés par des virgules)" list="existingTags">
+		  <datalist id="existingTags"></datalist>
           <button id="addEntryBtn">Ajouter</button>
           <!-- Filtres déplacés ici -->
           <div style="margin-top: 16px; border-top: 1px solid #e5e7eb; padding-top: 12px;">

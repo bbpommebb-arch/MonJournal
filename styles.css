@@ -164,7 +164,7 @@ body.dark input, body.dark textarea {
 }
 
 #entriesList {
-  min-height: 200px;
+  min-height: 400px;
 }
 
 .entry {

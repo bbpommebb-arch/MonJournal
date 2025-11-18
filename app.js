@@ -195,7 +195,7 @@ function startRealtime() {
         id: doc.id,
         data: doc.data(),
       }));
-      console.log("Entrées chargées :", allEntries); // OK si tu vois tes données
+      //console.log("Entrées chargées :", allEntries); // OK si tu vois tes données
 
       // Convertir les dates si nécessaire
       allEntries.forEach(entry => {
@@ -208,19 +208,31 @@ function startRealtime() {
       updateUIFromEntries();
 
       // Force l'affichage de toutes les entrées pour test
-      console.log("Appel de renderEntries avec toutes les entrées...");
+      //console.log("Appel de renderEntries avec toutes les entrées...");
       renderEntries(allEntries); // <-- Ajoute cette ligne
     });
 }
 
+// Mettre à jour le datalist des tags existants
+function updateTagDatalist(tags) {
+  const datalist = document.getElementById("existingTags");
+  datalist.innerHTML = "";
+  tags.forEach(tag => {
+    const option = document.createElement("option");
+    option.value = tag;
+    datalist.appendChild(option);
+  });
+}
+
+
 // --- Mise à jour de l'UI ---
 function updateUIFromEntries() {
-  if (!allTagsDiv || !entriesDiv) return; // Vérification de sécurité
-
   const tagSet = new Set();
   allEntries.forEach(entry => (entry.data.tags || []).forEach(tag => tagSet.add(tag)));
-  renderAllTags(Array.from(tagSet).sort());
-  applyFilters(); // Affiche toutes les entrées au démarrage
+  const tags = Array.from(tagSet).sort();
+  renderAllTags(tags);
+  updateTagDatalist(tags); // <-- Ajoute cette ligne
+  applyFilters();
 }
 
 function renderAllTags(tags) {
@@ -241,45 +253,55 @@ function renderAllTags(tags) {
 
 // --- Affichage des entrées ---
 function renderEntries(entriesToShow) {
-  if (!entriesDiv) {
-    console.error("Erreur : entriesDiv n'existe pas !");
-    return;
-  }
-
-  entriesDiv.innerHTML = ""; // Vide le conteneur
-
+  entriesDiv.innerHTML = "";
   if (!entriesToShow || entriesToShow.length === 0) {
     entriesDiv.innerHTML = "<p>Aucune entrée trouvée.</p>";
-    console.log("Aucune entrée à afficher.");
     return;
   }
-
-  console.log("Affichage de", entriesToShow.length, "entrées...");
 
   entriesToShow.forEach(entry => {
     const entryElement = document.createElement("div");
     entryElement.className = "entry";
 
-    // Gestion des dates
     const dateStr = entry.data.date ?
-      new Date(entry.data.date).toLocaleString("fr-FR") :
+      new Date(entry.data.date).toLocaleString("fr-FR", { hour: "2-digit", minute: "2-digit" }) :
       "Date inconnue";
 
-    // Gestion des tags
-    const tagsHtml = entry.data.tags && entry.data.tags.length > 0 ?
-      `<div class="entry-tags">${entry.data.tags.map(tag => `<span class="tag">${tag}</span>`).join(" ")}</div>` :
+    const tagsHtml = (entry.data.tags || []).length > 0 ?
+      `<div class="entry-tags">${entry.data.tags.map(tag => `
+        <span class="tag">
+          ${tag}
+          <button class="delete-tag" data-entry-id="${entry.id}" data-tag="${tag}">×</button>
+        </span>
+      `).join(" ")}</div>` :
       "";
 
     entryElement.innerHTML = `
       <div class="meta">
         <div class="title">${entry.data.title || "(sans titre)"}</div>
         <div class="date">${dateStr}</div>
+        <button class="delete-entry" data-entry-id="${entry.id}">Supprimer</button>
       </div>
       <p>${entry.data.content || "(aucun contenu)"}</p>
       ${tagsHtml}
     `;
-
     entriesDiv.appendChild(entryElement);
+  });
+
+  // Ajouter les écouteurs d'événements pour les boutons de suppression
+  document.querySelectorAll(".delete-entry").forEach(button => {
+    button.addEventListener("click", (e) => {
+      const entryId = e.target.dataset.entryId;
+      deleteEntry(entryId);
+    });
+  });
+
+  document.querySelectorAll(".delete-tag").forEach(button => {
+    button.addEventListener("click", (e) => {
+      const entryId = e.target.dataset.entryId;
+      const tag = e.target.dataset.tag;
+      deleteTag(entryId, tag);
+    });
   });
 }
 
@@ -306,4 +328,33 @@ function applyFilters() {
   });
 
   renderEntries(filtered);
+}
+
+// Supprimer une entrée
+function deleteEntry(entryId) {
+  if (!confirm("Voulez-vous vraiment supprimer cette entrée ?")) return;
+
+  db.collection("entries").doc(entryId).delete()
+    .then(() => {
+      console.log("Entrée supprimée avec succès.");
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la suppression :", error);
+    });
+}
+
+// Supprimer un tag d'une entrée
+function deleteTag(entryId, tag) {
+  const entry = allEntries.find(e => e.id === entryId);
+  if (!entry) return;
+
+  const updatedTags = (entry.data.tags || []).filter(t => t !== tag);
+
+  db.collection("entries").doc(entryId).update({ tags: updatedTags })
+    .then(() => {
+      console.log("Tag supprimé avec succès.");
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la suppression du tag :", error);
+    });
 }
