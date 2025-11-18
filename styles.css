@@ -1,0 +1,235 @@
+/* === Reset / Base === */
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background-color: #f6f7fb;
+  color: #0f1724;
+  margin: 0;
+  padding: 16px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark {
+  background-color: #0b1220;
+  color: #e6eef8;
+}
+
+/* === Layout === */
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Panels === */
+.panel {
+  background-color: white;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+}
+
+body.dark .panel {
+  background-color: #1c2330;
+}
+
+/* === Inputs & Buttons === */
+input, textarea, button {
+  font-family: inherit;
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  outline: none;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover {
+  background-color: #1e40af;
+}
+
+body.dark input, body.dark textarea {
+  background-color: #2a3346;
+  border-color: #555;
+  color: #e6eef8;
+}
+
+/* === Calendar === */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.calendar-header button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 4px;
+  transition: background-color 0.2s;
+}
+
+.calendar-day:hover {
+  background-color: rgba(37, 99, 235, 0.1);
+}
+
+.calendar-day.today {
+  background-color: rgba(37, 99, 235, 0.2);
+  font-weight: bold;
+}
+
+.calendar-day.other-month {
+  color: #9ca3af;
+}
+
+.calendar-day.has-entries {
+  background-color: rgba(37, 99, 235, 0.3);
+  position: relative;
+}
+
+.calendar-day.has-entries::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: #2563eb;
+  border-radius: 50%;
+}
+
+.entries-panel {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+}
+
+#entriesDateTitle {
+  margin-bottom: 12px;
+  color: #2563eb;
+}
+
+.entry {
+  background-color: rgba(37, 99, 235, 0.05);
+  border-left: 3px solid #2563eb;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+}
+
+body.dark .entry {
+  background-color: rgba(96, 165, 250, 0.05);
+}
+
+/* === Entries === */
+.entry {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #fafafa;
+  transition: transform 0.1s;
+}
+
+.entry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+body.dark .entry {
+  background-color: #212835;
+  border-color: #444;
+}
+
+/* === Entry Meta === */
+.entry .meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* === Tags === */
+.entry-tags, .tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background-color: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tag:hover {
+  background-color: rgba(37, 99, 235, 0.2);
+}
+
+body.dark .tag {
+  background-color: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+}
+
+/* === Buttons Top === */
+#adminBtn, #darkToggle {
+  margin-right: 8px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-weight: 500;
+}
