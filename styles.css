@@ -320,23 +320,22 @@ body.dark .tag {
 /* ============================================= */
 /* === BOUTONS DU HAUT (ADMIN/DARK MODE) === */
 /* ============================================= */
-#adminBtn, #darkToggle {
+#adminBtn, #darkToggle, #exportCSVBtn {
   margin-right: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   border-radius: 8px;
-  padding: 6px 12px;
+  padding: 8px 10px;
   font-weight: 500;
 }
 
 #darkToggle {
-  background: var(--color-panel);
-  color: var(--color-text);
+  margin-right: 1px;
+  margin-bottom: 1px;
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-weight: 100;
 }
 
-body.dark #darkToggle {
-  background: var(--color-panel-dark);
-  color: var(--color-text-dark);
-}
 
 /* ============================================= */
 /* === ANIMATIONS (OPTIONNEL) === */
@@ -597,26 +596,3 @@ body.dark .collapse-btn {
   color: var(--color-text-dark-light);
 }
 
-
-/* Style pour le bouton d'export CSV */
-#exportCSVBtn {
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px; /* Espace entre l'icône et le texte (si tu en ajoutes) */
-}
-
-#exportCSVBtn:hover {
-  background: var(--color-primary-dark);
-}
-
-/* Taille de l'icône */
-#exportCSVBtn i {
-  font-size: 16px;
-}
